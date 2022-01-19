@@ -5,9 +5,21 @@
 "remap jj to <Esc>
 imap jj <Esc>
 
+" Enable folding with spacebar
+nnoremap <space> za
+
 """"""
 " UI "
 """"""
+" font
+ set gfn=IBM\ Plex\ Mono:h14,Hack:h14,Source\ Code\ Pro:h15,Menlo:h15
+" set guifont=IBM\ Plex\ Mono:h14,Hack:h14,Source\ Code\ Pro:h15,Menlo:h15
+
+" Disable scrollbar
+set guioptions-=r
+set guioptions-=R
+set guioptions-=l
+set guioptions-=L
 
 " disable vi compatibility
 set nocompatible
@@ -48,6 +60,10 @@ set cursorline
 set textwidth=80
 set colorcolumn=80
 
+" Code folding
+set foldmethod=indent
+set foldlevel=99
+
 " ignore whitespace in diff mode
 " set diffopt+=iwhite
 
@@ -64,7 +80,7 @@ autocmd BufReadPost *
 	\ endif
 
 " show '>   ' at the beginning of lines that are automatically wrapped
-set showbreak=>\ \ \ 
+set showbreak=>\ \ \
 
 " enable completion
 set ofu=syntaxcomplete#Complete
@@ -112,6 +128,27 @@ set shiftwidth=2
 "On pressing tab, insert 2 spaces
 set expandtab
 
+" Python specific indenting
+au BufNewFile, BufRead *.py,
+    \ set tabstop=4 |
+    \ set softtabstop=4 |
+    \ set shiftwidth=4 |
+    \ set textwidth=79 |
+    \ set expandtab |
+    \ set autoindent |
+    \ set fileformat=unix
+
+" Javascript indentation
+au BufNewFile, BufRead *.js, *.html, *.css
+    \ set tabstop=2 |
+    \ set softtabstop=2 |
+    \ set shiftwidth=2
+
+" highlight trailing whitespaces
+highlight BadWhitespace ctermbg=red guibg=darkred
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h, *.js match BadWhitespace /\s\+$/
+
+
 """"""""
 " GVim "
 """"""""
@@ -150,16 +187,26 @@ call plug#begin('~/.vim/plugged')
   "Vim polygot
   Plug 'sheerun/vim-polyglot'
 
-	" Auto completion you complete me
-	Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
-
   " Vim lightline (powerline clone)
   Plug 'itchyny/lightline.vim'
+
+  " SimpylFold -- Better folding
+  Plug 'tmhedberg/SimpylFold'
+
+  " Better Python indentation
+  Plug 'vim-scripts/indentpython.vim'
+
+	" YCM
+	Plug 'Valloric/YouCompleteMe'
+
+  " Pythong style checker
+  Plug 'nvie/vim-flake8'
+
   " Themes "
 
   " vim-gitbranch (Provides gitbranch function instead of full integration)
   Plug 'itchyny/vim-gitbranch'
-  
+
   " Zenburn
   Plug 'jnurmine/Zenburn', { 'as' : 'zenburn' }
 
@@ -174,7 +221,7 @@ call plug#end()
 
 syntax enable
 set background=dark "uncomment this if your terminal has a dark background
-colorscheme onedark 
+colorscheme onedark
 
 """""""""""""""""""""
 "     lightLine     "
@@ -220,12 +267,6 @@ let g:ale_sign_warning = '⚠️'
 let g:ale_fix_on_save = 1
 
 """""""""""""""""""""
-"  You Complete Me  "
+"     Flake 8       "
 """""""""""""""""""""
-" Start autocompletion after 4 chars
-let g:ycm_min_num_of_chars_for_completion = 4
-let g:ycm_min_num_identifier_candidate_chars = 4
-let g:ycm_enable_diagnostic_highlighting = 0
-" Don't show YCM's preview window [ I find it really annoying ]
-set completeopt-=preview
-let g:ycm_add_preview_to_completeopt = 0
+autocmd BufWritePost *.py call Flake8()

@@ -3,7 +3,7 @@
 
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/justin/.oh-my-zsh"
-ZSH_THEME="half-life"
+ZSH_THEME="dallas"
 HIST_STAMPS="mm/dd/yyyy"
 plugins=(git colored-man-pages colorize pip python brew macos)
 

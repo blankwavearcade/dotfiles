@@ -62,9 +62,23 @@ require("lazy").setup({
   -- File Tree
   {
     "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" }, -- Optional: adds file icons
     config = function()
-      require("nvim-tree").setup()
+      require("nvim-tree").setup({
+        view = {
+          side = "right",
+          width = 30,
+        },
+        renderer = {
+          add_trailing = true,
+          group_empty = true,
+          highlight_git = true,
+        },
+      })
+      -- Your existing toggle keymap
       vim.keymap.set("n", "<C-n>", "<cmd>NvimTreeToggle<cr>")
+      -- A new keymap to jump your cursor TO the tree if it's already open
+      vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeFocus<cr>")
     end,
   },
 
@@ -85,13 +99,15 @@ require("lazy").setup({
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
+      -- Change this line from require("nvim-treesitter.configs")
+      require("nvim-treesitter").setup({
         highlight = { enable = true },
         indent = { enable = true },
+        -- Ensure essential parsers are installed
+        ensure_installed = { "lua", "vim", "vimdoc", "go", "python", "typescript", "tsx", "html" },
       })
     end,
   },
-
   -- Git signs
   {
     "lewis6991/gitsigns.nvim",
@@ -147,18 +163,61 @@ require("lazy").setup({
     end,
   },
 
+  -- Autopairs (Automatically close brackets, quotes, etc.)
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup({})
+    end,
+  },
+
+  -- Autotag (Automatically close HTML/JSX tags using Treesitter)
+  {
+    "windwp/nvim-ts-autotag",
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+  -- Statusline (Lualine)
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("lualine").setup({
+        options = {
+          theme = "tokyonight",
+          component_separators = { left = "|", right = "|" },
+          section_separators = { left = "", right = "" },
+          globalstatus = true, -- Keep a single statusline at the bottom
+        },
+        sections = {
+          lualine_a = { "mode" },
+          lualine_b = { "branch", "diff", "diagnostics" },
+          lualine_c = { "filename" },
+          lualine_x = { "encoding", "fileformat", "filetype" },
+          lualine_y = { "progress" },
+          lualine_z = { "location" },
+        },
+      })
+    end,
+  },
 })
 
 --------------------------------------------------
 -- LSP Setup
 --------------------------------------------------
 
-local lspconfig = require("lspconfig")
+-- Use the new native Neovim 0.11+ configuration style
+local servers = { "gopls", "pyright", "ts_ls" }
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-lspconfig.gopls.setup({ capabilities = capabilities })
-lspconfig.pyright.setup({ capabilities = capabilities })
-lspconfig.ts_ls.setup({ capabilities = capabilities })
+for _, lsp in ipairs(servers) do
+  vim.lsp.config(lsp, {
+    install = true, -- Automatically handles installation via mason-lspconfig
+    capabilities = capabilities,
+  })
+end
 
 --------------------------------------------------
 -- Auto Format on Save
@@ -182,3 +241,8 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.tabstop = 4
   end,
 })
+
+-- Integration between autopairs and nvim-cmp
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+local cmp = require("cmp")
+cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())

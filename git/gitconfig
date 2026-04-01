@@ -1,0 +1,75 @@
+[init]
+  defaultBranch = main
+
+[core]
+    autocrlf = input          # normalize line endings on commit (good on Linux/Mac)
+    whitespace = fix           # fix trailing whitespace issues
+    editor = nvim
+    pager = delta              # better diff pager (install delta separately)
+
+[fetch]
+    prune = true
+    pruneTags = true
+    parallel = 0               # use as many parallel fetch jobs as remotes
+
+[pull]
+    rebase = true              # always rebase on pull instead of merge
+
+[push]
+    default = current          # push to same-name branch on remote
+    autoSetupRemote = true     # auto-create remote branch if it doesn't exist
+
+[branch]
+    autoSetupMerge = always
+    sort = -committerdate      # git branch lists most recently committed first
+
+[rebase]
+    autoStash = true           # auto stash/unstash dirty working tree on rebase
+    autoSquash = true          # honor fixup!/squash! commit prefixes automatically
+    updateRefs = true          # update stacked branch refs when rebasing
+
+[merge]
+    conflictstyle = zdiff3     # better conflict markers (shows base context)
+    tool = nvimdiff
+
+[diff]
+    algorithm = histogram      # smarter diff algorithm, better for code
+    colorMoved = default       # distinguish moved lines from added/removed
+    mnemonicPrefix = true      # use i/w/c/o instead of a/b in diff prefixes
+
+[status]
+    showUntrackedFiles = all   # show individual files in untracked dirs
+
+[log]
+    date = iso
+    follow = true              # follow file renames in git log
+
+[tag]
+    sort = -version:refname    # sort tags by version descending
+
+[rerere]
+    enabled = true             # remember and replay conflict resolutions
+    autoupdate = true
+
+[help]
+    autocorrect = prompt       # prompt to run corrected command on typo
+
+[credential]
+    helper = osxkeychain       # swap for libsecret on Linux
+
+[alias]
+    lg = log --oneline --graph --decorate --all
+    undo = reset HEAD~1 --mixed
+    wip = commit -am "wip"
+    unwip = reset HEAD~1 --mixed
+    aliases = config --get-regexp alias
+    branches = branch -vv --sort=-committerdate
+    stashes = stash list
+    conflicts = diff --name-only --diff-filter=U
+    fixup = commit --fixup
+
+[delta]
+    navigate = true            # use n/N to jump between diff sections
+    side-by-side = true
+    line-numbers = true
+    syntax-theme = Dracula
